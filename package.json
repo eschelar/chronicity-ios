@@ -1,0 +1,4 @@
+{"name":"chronicity","version":"0.1.1-alpha","private":true,
+"scripts":{"android:setup":"cap add android && capacitor-assets generate --android && cap sync android","android:open":"cap open android"},
+"dependencies":{"@capacitor/android":"^7.0.0","@capacitor/core":"^7.0.0"},
+"devDependencies":{"@capacitor/assets":"^3.0.5","@capacitor/cli":"^7.0.0"}}

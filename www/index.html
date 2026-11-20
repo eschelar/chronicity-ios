@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chronicity</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1923">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chronicity">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f8;--card:#fff;--ink:#14202b;--mute:#5b6f80;--line:#d5dde5;--acc:#e08a00;--c0:#12a58a;--c1:#e08a00;--c2:#d9534f;--c3:#7b61d1;--cn:#6b7f90;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(88px + env(safe-area-inset-bottom,0px));color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1923;--card:#18242f;--ink:#eef3f7;--mute:#8fa3b5;--line:#2a3a48;--acc:#ffb703;--c0:#2ec4a6;--c1:#ffb703;--c2:#ff6b6b;--c3:#a18cff;--cn:#6b7f90;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1923;--card:#18242f;--ink:#eef3f7;--mute:#8fa3b5;--line:#2a3a48;--acc:#ffb703;--c0:#2ec4a6;--c1:#ffb703;--c2:#ff6b6b;--c3:#a18cff;--cn:#6b7f90;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{min-width:0;max-width:520px;margin:0 auto;padding:12px 14px;transition:padding-top .3s}
+.run-ui main{padding-top:46px}
+.tabs{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;overflow:hidden;max-height:60px;transition:max-height .3s,opacity .3s,padding .3s,border-width .3s}
+.run-ui .tabs{max-height:0;opacity:0;padding-top:0;padding-bottom:0;border-width:0}
+.tabs button{flex:1;border:0;background:none;color:var(--mute);font-family:inherit;font-weight:700;font-size:15px;padding:10px;border-radius:9px}
+.tabs button.on{background:var(--acc);color:#111}
+.disp{position:relative;z-index:3;margin:14px 0;border-radius:18px;padding:18px 14px;text-align:center;background:var(--card);border:2px solid var(--line);transition:border-color .2s,background .2s;user-select:none;cursor:pointer}
+.clock{font:700 76px/1 "Barlow Condensed","Roboto Condensed",sans-serif-condensed,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fr{display:inline-flex;align-items:baseline;overflow:hidden;max-width:0;opacity:0;font-size:.55em;transition:max-width .3s ease,opacity .3s ease}
+.fine .fr{max-width:4em;opacity:1}
+.sub{color:var(--mute);margin-top:6px;min-height:1.4em}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;overflow:hidden;transition:height .38s ease}
+.wrap>*{grid-area:1/1;min-width:0;max-width:100%}
+.stage{justify-self:center;width:min(100%,360px);aspect-ratio:1;margin:6px 0 0;opacity:0;transition:opacity .4s}
+.run-ui .stage{opacity:1}
+.stage svg{display:block;width:100%;height:100%;max-width:100%;overflow:visible}
+.rg{fill:none;stroke:currentColor;opacity:.55;transition:opacity .15s,r .5s ease,stroke-width .5s ease}
+.gh{fill:none;stroke:currentColor;opacity:.6;transition:r .5s ease,stroke-width .5s ease}
+.rg.on{opacity:1}.rg.gone{opacity:0}
+.rg.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.rg.pulse{animation:none}}
+.edit{position:relative;z-index:2;background:var(--bg);transition:transform .38s cubic-bezier(.4,0,.2,1),visibility 0s}
+.edit.shut{transform:translateY(-105%);visibility:hidden;transition:transform .38s cubic-bezier(.4,0,.2,1),visibility 0s .38s}
+.hdl{position:fixed;top:env(safe-area-inset-top,0px);z-index:20;width:76px;height:38px;display:none;border:0;background:var(--acc);color:#111;border-radius:0 0 20px 20px;font-size:22px;font-weight:700;line-height:1;touch-action:none;padding:0;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.hdl.l{left:12px}.hdl.r{right:12px}
+.run-ui .hdl{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.row>label{color:var(--mute);font-size:13px;min-width:56px}
+input[type=number],select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;min-width:0}
+input[type=number]{width:76px}
+select{flex:1}
+input[type=range]{flex:1;accent-color:var(--acc)}
+.chk{display:flex;gap:8px;align-items:center;margin:8px 2px}
+.chk input{width:20px;height:20px;accent-color:var(--acc)}
+.sm{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:7px 11px;font:inherit}
+.sm.on{background:var(--acc);color:#111;border-color:var(--acc)}
+.add{width:100%;padding:11px;border:1px dashed var(--mute);background:none;color:var(--ink);border-radius:12px;font:inherit;margin-bottom:10px}
+.nx{margin-left:auto;color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums}
+.mk{display:inline-flex;align-items:center;gap:4px;margin-left:8px;color:var(--mute)}
+.mk input{width:20px;height:20px;accent-color:var(--acc)}
+.macc{border:6px solid var(--acc);border-radius:14px;background:var(--acc);margin-bottom:10px;overflow:hidden}
+.macc.open{background:var(--card);padding:6px}
+.mbtn{display:flex;align-items:center;gap:8px;width:100%;border:0;background:var(--acc);color:#111;padding:14px;font:inherit;font-weight:700;font-size:16px}
+.macc.open .mbtn{border-radius:9px;padding:12px;box-shadow:0 3px 0 rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4)}
+.mbody{padding:8px 6px 2px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+.gw{position:relative;max-width:520px;margin:0 auto}
+.go,.pz{font-family:inherit;font-weight:700;font-size:18px}
+.go{position:relative;z-index:1;display:block;width:100%;border:0;border-radius:14px;padding:16px;background:var(--acc);color:#111}
+.go.stop{background:var(--c2);color:#fff}
+.pz{position:absolute;left:0;right:0;bottom:0;z-index:0;padding:16px;border:1px solid #a9d77c;border-radius:14px;background:#c9f299;color:#22360f;visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+.run .pz{visibility:visible;transform:translateY(-64px);transition:transform .25s ease,visibility 0s}
+.mi{flex:none}.mi .arm{transform-origin:12px 19px;transform:rotate(20deg)}.mi.f .arm{transform:rotate(-20deg)}
+.mi .arm path,.mi .arm circle{stroke:var(--acc)}.mi .arm circle{fill:var(--acc)}
+.mbtn .mi .arm path,.mbtn .mi .arm circle{stroke:#111}.mbtn .mi .arm circle{fill:#111}
+.tin{flex:1;min-width:0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit}
+.ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px}
+.sheet{width:100%;max-width:440px;max-height:90vh;overflow:auto;background:var(--card);border:2px solid var(--acc);border-radius:18px;padding:18px}
+.sheet h2{margin:0 0 6px;font-size:22px}.sheet h2 small{font-size:13px;color:var(--acc)}.sheet h3{margin:12px 0 4px}.sheet p{margin:6px 0;color:var(--mute)}
+h3{margin:0 0 4px;font-size:15px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<button class="hdl l" id="hl">▴</button><button class="hdl r" id="hr">▴</button>
+<main>
+ <div class="card" id="ioshint" hidden style="display:flex;gap:10px;align-items:center"><span style="flex:1">To install on iPhone: tap the Share icon, then <b>Add to Home Screen</b>.</span><button class="sm" id="iosok">Got it</button></div>
+ <div class="tabs"><button id="t-free" class="on">Time Master</button><button id="t-tab">Tabata</button></div>
+ <div class="disp" id="disp"><div class="clock"><span id="cm">00:00</span><span class="fr"><span id="ft">.00</span></span></div><div class="sub" id="sub">Ready</div></div>
+ <div class="wrap" id="wrap">
+  <div class="stage" id="stage"><svg id="rings" viewBox="0 0 300 300" width="300" height="300" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <div class="edit" id="ed"><section id="p-free"></section><section id="p-tab" hidden></section></div>
+ </div>
+</main>
+<div class="bar"><div class="gw"><button class="pz" id="pz">Pause</button><button class="go" id="go">Start</button></div></div>
+<div class="ov" id="splash" hidden><div class="sheet">
+ <h2>Chronicity <small>alpha</small></h2>
+ <p>This is a free alpha. Thanks for testing, and please tell me what feels off.</p>
+ <div id="spNative"><h3>Keep timers running with the screen off</h3>
+ <p>Allow notifications when asked. Then set Chronicity's battery use to <b>Unrestricted</b> (or turn off battery optimization). Some phones also have a sleeping-apps list to check (Samsung: Never sleeping apps).</p>
+ <div class="row"><button class="sm" id="spBat">Battery settings</button><button class="sm" id="spApp">App info</button></div></div>
+ <div id="spWeb"><h3>Before you start</h3><p>Keep this screen on while timing. Sound and timing pause if the phone locks or you leave the app.</p></div>
+ <label class="chk"><input type="checkbox" id="spNever">Don't show this again</label>
+ <button class="go" id="spOk" style="margin-top:8px">Got it</button></div></div>
+<script>
+const $=s=>document.querySelector(s);
+const AC=window.AudioContext||window.webkitAudioContext;let ctx;
+function audio(){if(!ctx){ctx=new AC();try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}}if(ctx.state==='suspended')ctx.resume();return ctx}
+function tone(f,t0,d,type,v){const c=audio(),o=c.createOscillator(),g=c.createGain(),s=c.currentTime+t0;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(Math.max(v,.0002),s+.01);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(c.destination);o.start(s);o.stop(s+d+.05)}
+function noise(t0,d,f,v){const c=audio(),n=Math.floor(c.sampleRate*d),b=c.createBuffer(1,n,c.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();s.buffer=b;fl.type='bandpass';fl.frequency.value=f;fl.Q.value=1.5;g.gain.value=Math.min(v*4,1.5);s.connect(fl);fl.connect(g);g.connect(c.destination);s.start(c.currentTime+t0)}
+const SOUNDS={Tick:v=>noise(0,.03,3200,v),Tock:v=>noise(0,.06,900,v),'Tick-tock':(v,n)=>SOUNDS[n%2?'Tick':'Tock'](v),
+Bip:v=>tone(1800,0,.04,'square',v*.5),Bop:v=>tone(1200,0,.09,'sine',v),'Bip-bop':(v,n)=>SOUNDS[n%2?'Bip':'Bop'](v),
+Chime:v=>{tone(1175,0,.6,'sine',v);tone(1568,.18,.9,'sine',v)},Bell:v=>{tone(660,0,1.4,'sine',v);tone(1320,0,.9,'sine',v*.5)},Buzz:v=>tone(200,0,.5,'sawtooth',v*.6),Gong:v=>{tone(196,0,2,'sine',v);tone(392,0,1.5,'sine',v*.5)}};
+const CNT={};
+const play=(s,v,k)=>{try{const f=SOUNDS[s]||SOUNDS.Bop,n=CNT[k||s]=(CNT[k||s]||0)+1;f(v*v,n)}catch(e){}};
+const playMet=(s,v)=>play(s,v,'m');
+const MET=['Bip-bop','Bip','Bop','Tick-tock','Tick','Tock'];
+const ICON='<svg class="mi" width="32" height="28" viewBox="0 0 24 24" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8l-2.2-15h-3.6z"/><g class="arm"><path d="M12 19V4.5"/><circle cx="12" cy="8.5" r="1.5"/></g></svg>';
+const DEF={ver:2,freeSync:false,alarms:[{on:1,n:5,u:60,s:'Bip',v:.6},{on:1,n:15,u:60,s:'Chime',v:.7},{on:1,n:1,u:3600,s:'Bell',v:.8}],tab:{lead:10,pad:0,rounds:8,leadM:0,padM:0,met:{iv:1,type:'Tick',v:.5},segs:[{l:'Work',n:20,s:'Bip',v:.7,m:0},{l:'Rest',n:10,s:'Bop',v:.7,m:0}]}};
+let cfg;try{cfg=JSON.parse(localStorage.getItem('it-cfg'))}catch(e){}
+cfg=cfg||JSON.parse(JSON.stringify(DEF));
+const save=()=>{try{localStorage.setItem('it-cfg',JSON.stringify(cfg))}catch(e){}};
+{const T=cfg.tab;T.met=T.met||{iv:1,type:'Tick',v:.5};
+ if(T.met.on){T.leadM=T.padM=1;T.segs.forEach(g=>g.m=1);delete T.met.on}
+ if(T.leadM===undefined)T.leadM=0;if(T.padM===undefined)T.padM=0;T.segs.forEach(g=>{if(g.m===undefined)g.m=0});
+ if(cfg.ver!==2){const mp={Click:'Bip',Bip:'Bop',Beep:'Bop',Triple:'Bip-bop'},fx=s=>mp[s]||s;cfg.alarms.forEach(a=>a.s=fx(a.s));T.segs.forEach(g=>g.s=fx(g.s));T.met.type=fx(T.met.type);cfg.ver=2}
+ if(!MET.includes(T.met.type))T.met.type='Tick';save()}
+const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+const L=i=>String.fromCharCode(65+i%26);
+const opts=(sel,list)=>(list||Object.keys(SOUNDS)).map(k=>`<option${k===sel?' selected':''}>${k}</option>`).join('');
+const p2=n=>String(n).padStart(2,'0');
+const hms=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return(h?h+':':'')+p2(m)+':'+p2(Math.floor(s%60))};
+const fmt=s=>hms(Math.max(0,Math.ceil(s)));
+function setClock(sec,down){sec=Math.max(0,sec);const fine=$('#disp').classList.contains('fine');$('#cm').textContent=hms(down&&!fine?Math.ceil(sec):Math.floor(sec));$('#ft').textContent='.'+p2(Math.floor((sec%1)*100))}
+$('#disp').onclick=()=>$('#disp').classList.toggle('fine');
+let mode='free',R=null,timer=null,wl=null,metOpen=false,testT=null,edOpen=true;
+const mk=(p,on)=>`<label class="mk" data-ic="${p}">${ICON}<input type="checkbox" ${on?'checked':''} data-p="${p}" data-t="c" data-mk="1"></label>`;
+const allOn=()=>[cfg.tab.leadM,cfg.tab.padM,...cfg.tab.segs.map(g=>g.m)].every(Boolean);
+const metOn=p=>p.kind==='lead'?cfg.tab.leadM:p.kind==='pad'?cfg.tab.padM:(cfg.tab.segs[p.si]||{}).m;
+function get(p){return p.split('.').reduce((o,k)=>o[k],cfg)}
+function setp(p,v){const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],cfg)[l]=v}
+function refreshM(){document.querySelectorAll('input[data-mk]').forEach(el=>el.checked=!!get(el.dataset.p));const a=$('.allc');if(a)a.checked=allOn()}
+let metSide=0;
+function flipIcons(key){metSide^=1;const set=[...document.querySelectorAll('#metBtn .mi,.allrow .mi')];if(key){const l=document.querySelector(`.mk[data-ic="${key}"] .mi`);if(l)set.push(l)}set.forEach(e=>e.classList.toggle('f',!!metSide))}
+function beat(){const m=cfg.tab.met;playMet(m.type,m.v);flipIcons(null);testT=setTimeout(beat,Math.max(100,m.iv*1000))}
+function stopTest(){clearTimeout(testT);testT=null;const b=$('#metTest');if(b){b.textContent='Test';b.classList.remove('on')}}
+function toggleTest(){if(testT){stopTest();return}audio();CNT.m=0;beat();const b=$('#metTest');if(b){b.textContent='Stop';b.classList.add('on')}}
+function metHtml(){const m=cfg.tab.met;
+ return `<div class="macc${metOpen?' open':''}"><button class="mbtn" id="metBtn">${ICON}<span>Metronome</span><span style="margin-left:auto">${metOpen?'▴':'▾'}</span></button>`+(metOpen?`<div class="mbody"><div class="row allrow">${ICON}<b>All</b><input type="checkbox" class="allc" data-all="1" ${allOn()?'checked':''} style="margin-left:auto;width:22px;height:22px;accent-color:var(--acc)"></div>
+ <div class="row"><label>Every</label><input type="number" min="0.1" step="any" value="${m.iv}" data-p="tab.met.iv" data-t="n"><span class="nx">seconds</span></div>
+ <div class="row"><label>Sound</label><select data-p="tab.met.type" data-t="s">${opts(m.type,MET)}</select><button class="sm${testT?' on':''}" id="metTest">${testT?'Stop':'Test'}</button></div>
+ <div class="row"><label>Volume</label><input type="range" min="0" max="100" value="${m.v*100}" data-p="tab.met.v" data-t="r"></div></div>`:'')+`</div>`}
+function render(){
+ $('#p-free').innerHTML=`<div style="display:flex;align-items:center;margin:8px 2px"><label class="chk" style="margin:0"><input type="checkbox" ${cfg.freeSync?'checked':''} data-p="freeSync" data-t="c">Sync to clock</label><span class="nx" id="syncNext" style="visibility:hidden"></span></div>`+cfg.alarms.map((a,i)=>`<div class="card"><div class="row"><input type="text" class="tin" placeholder="Alarm ${i+1}" value="${esc(a.l)}" data-p="alarms.${i}.l" data-t="s"><span class="nx" id="nx${i}"></span></div>
+ <div class="row"><label>Every</label><input type="number" min="1" step="any" value="${a.n}" data-p="alarms.${i}.n" data-t="n"><select data-p="alarms.${i}.u" data-t="n"><option value="1"${a.u==1?' selected':''}>seconds</option><option value="60"${a.u==60?' selected':''}>minutes</option><option value="3600"${a.u==3600?' selected':''}>hours</option></select></div>
+ <div class="row"><label>Sound</label><select data-p="alarms.${i}.s" data-t="s">${opts(a.s)}</select><button class="sm" data-test="alarms.${i}">Test</button></div>
+ <div class="row"><label>Volume</label><input type="range" min="0" max="100" value="${a.v*100}" data-p="alarms.${i}.v" data-t="r"></div>
+ <div class="row"><label class="chk" style="margin:0"><input type="checkbox" ${a.on?'checked':''} data-p="alarms.${i}.on" data-t="c">Enabled</label><button class="sm" style="margin-left:auto" data-del="${i}">Remove</button></div></div>`).join('')+`<button class="add" id="addA">Add alarm</button>`;
+ const t=cfg.tab;
+ $('#p-tab').innerHTML=`<div class="card"><div class="row"><label>Lead-in</label><input type="number" min="0" value="${t.lead}" data-p="tab.lead" data-t="n"><span class="nx">seconds</span>${mk('tab.leadM',t.leadM)}</div>
+ <div class="row"><label>Repeat</label><input type="number" min="1" value="${t.rounds}" data-p="tab.rounds" data-t="n"><span class="nx">rounds</span></div>
+ <div class="row"><label>Padding</label><input type="number" min="0" value="${t.pad}" data-p="tab.pad" data-t="n"><span class="nx">between rounds</span>${mk('tab.padM',t.padM)}</div></div>`+metHtml()+
+ t.segs.map((g,i)=>`<div class="card"><div class="row"><h3>${L(i)}</h3><input type="text" value="${esc(g.l)}" data-p="tab.segs.${i}.l" data-t="s" style="flex:1;min-width:0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit"><input type="number" min="1" value="${g.n}" data-p="tab.segs.${i}.n" data-t="n"><span class="nx" style="margin:0">sec</span>${mk('tab.segs.'+i+'.m',g.m)}</div>
+ <div class="row"><label>Sound</label><select data-p="tab.segs.${i}.s" data-t="s">${opts(g.s)}</select><button class="sm" data-test="tab.segs.${i}">Test</button></div>
+ <div class="row"><label>Volume</label><input type="range" min="0" max="100" value="${g.v*100}" data-p="tab.segs.${i}.v" data-t="r"><button class="sm" data-delseg="${i}">Remove</button></div></div>`).join('')+
+ `<button class="add" id="addS">Add segment</button>`;
+}
+document.addEventListener('input',e=>{const d=e.target.dataset;
+ if(d.all!==undefined){const on=e.target.checked?1:0;cfg.tab.leadM=on;cfg.tab.padM=on;cfg.tab.segs.forEach(g=>g.m=on);save();refreshM();return}
+ const p=d.p;if(!p)return;const t=d.t;let v=e.target.value;
+ if(t==='n')v=parseFloat(v)||0;else if(t==='c')v=e.target.checked?1:0;else if(t==='r')v=v/100;
+ setp(p,t==='c'&&p.indexOf('.')<0?!!v:v);save();if(d.mk)refreshM();if(!R)idle();updNext()});
+document.addEventListener('click',e=>{const d=e.target.dataset;
+ if(e.target.closest('#metBtn')){metOpen=!metOpen;if(!metOpen)stopTest();render();return}
+ if(e.target.closest('#metTest')){toggleTest();return}
+ if(d.test){const o=get(d.test);audio();play(o.s,o.v,d.test)}
+ else if(d.del!==undefined){cfg.alarms.splice(+d.del,1);save();render()}
+ else if(d.delseg!==undefined){if(cfg.tab.segs.length>1){cfg.tab.segs.splice(+d.delseg,1);save();render()}}
+ else if(e.target.id==='addA'){cfg.alarms.push({on:1,n:10,u:60,s:'Bip',v:.7});save();render()}
+ else if(e.target.id==='addS'){cfg.tab.segs.push({l:'Round',n:20,s:'Bip',v:.7,m:allOn()?1:0});save();render()}});
+function setMode(m){stopTest();if(R)stop();mode=m;$('#t-free').classList.toggle('on',m==='free');$('#t-tab').classList.toggle('on',m==='tab');$('#p-free').hidden=m!=='free';$('#p-tab').hidden=m!=='tab';idle()}
+$('#t-free').onclick=()=>setMode('free');$('#t-tab').onclick=()=>setMode('tab');
+function idle(){setClock(0,false);const r=cfg.tab.rounds;$('#sub').textContent=mode==='free'?'Ready':'Ready: '+r+(r==1?' round':' rounds');$('#disp').style.borderColor='var(--line)';$('#disp').style.background='var(--card)'}
+
+const wrap=$('#wrap'),ed=$('#ed');
+function setEd(open){edOpen=open;wrap.style.height=wrap.offsetHeight+'px';ed.classList.toggle('shut',!open);const st=$('#stage'),h=open?Math.max(ed.offsetHeight,st.offsetHeight):st.offsetHeight;
+ requestAnimationFrame(()=>{wrap.style.height=h+'px'});if(open)setTimeout(()=>{if(edOpen)wrap.style.height='auto'},430);
+ $('#hl').textContent=$('#hr').textContent=open?'▴':'▾'}
+['hl','hr'].forEach(id=>{const b=document.getElementById(id);let y0=null;
+ b.addEventListener('pointerdown',e=>{y0=e.clientY;try{b.setPointerCapture(e.pointerId)}catch(x){}});
+ b.addEventListener('pointerup',e=>{if(y0===null)return;const dy=e.clientY-y0;y0=null;if(dy>24)setEd(true);else if(dy<-24)setEd(false);else setEd(!edOpen)})});
+
+function buildPhases(){const t=cfg.tab,P=[];if(t.lead>0)P.push({kind:'lead',k:'lead',name:'Get ready',d:t.lead,s:'Bip-bop',v:.6,c:'--cn',r:0});
+ for(let r=1;r<=t.rounds;r++)t.segs.forEach((g,i)=>{P.push({kind:'seg',si:i,k:'s'+i,name:`${L(i)}: ${g.l}`,d:g.n,s:g.s,v:g.v,c:'--c'+(i%4),r});
+  if(t.pad>0&&!(r===t.rounds&&i===t.segs.length-1))P.push({kind:'pad',k:'pad',name:'Pause',d:t.pad,c:'--cn',r})});
+ let e=0;P.forEach(p=>{e+=p.d;p.e=e});return P}
+function layout(){const A=118,O=140,live=R.items.filter(x=>!x.dead),W=live.reduce((a,x)=>a+x.w,0)||1;let th=live.map(x=>Math.max(3,x.w/W*A));const S=th.reduce((a,b)=>a+b,0)||1;th=th.map(x=>x*A/S);if(R.m==='free')th=th.map(()=>Math.min(A/live.length,28));let r=O;
+ live.forEach((x,j)=>{r-=th[j]/2;const w=Math.max(th[j]-1.4,1).toFixed(2);[x.el,x.gh].forEach(e=>{if(e){e.setAttribute('r',r.toFixed(2));e.setAttribute('stroke-width',w)}});r-=th[j]/2});
+ const tl=document.getElementById('tdcl');if(tl)tl.setAttribute('y2',(150-r).toFixed(1))}
+function buildRings(){const svg=$('#rings'),fr=R.m==='free';let items=[];
+ if(!fr)R.P.forEach(p=>{const key=p.kind==='seg'?'s'+p.si:p.kind;let ix=items.findIndex(x=>x.key===key);if(ix<0){items.push({key,w:p.d,c:p.c});ix=items.length-1}p.ri=ix});
+ else cfg.alarms.forEach((a,i)=>{const iv=a.n*a.u*1000;if(a.on&&iv>0)items.push({w:iv,c:'--c'+(i%4),i})});
+ const rot=fr?90:-90;
+ svg.innerHTML=items.map(x=>(fr?`<circle class="gh" cx="150" cy="150" r="100" stroke-width="10" pathLength="100" transform="rotate(${rot} 150 150)" style="color:color-mix(in srgb, var(${x.c}) 30%, var(--mute))"/>`:'')+`<circle class="rg${fr?' on':''}" cx="150" cy="150" r="100" stroke-width="10" pathLength="100" stroke-dasharray="100 0" transform="rotate(${rot} 150 150)" style="color:var(${x.c})"/>`).join('')+(fr?'<g><line id="tdcl" x1="150" y1="2" x2="150" y2="100" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round"/><path d="M141 0L159 0L150 12Z" fill="var(--acc)"/></g>':'');
+ R.rings=[...svg.querySelectorAll('.rg')];const gh=[...svg.querySelectorAll('.gh')];R.items=items;
+ items.forEach((x,j)=>{x.el=R.rings[j];x.gh=gh[j];x.st='hid';x.dir='off';if(!fr)x.el.style.display='none'});
+ R.rm={};items.forEach(x=>{if(x.i!==undefined)R.rm[x.i]=x.el});
+ if(fr){R.T=Math.max(1,...items.map(x=>x.w));items.forEach(x=>{x.el._gh=x.gh})}
+ layout()}
+function wheel(c,pos,iv){const T=R.T,ph=pos%iv,P=iv/T*100;
+ const ts=Math.max(-ph/T*360,-180),te=Math.min((iv-ph)/T*360,180),a=(ts+180)/3.6,b=(te-ts)/3.6;
+ c.setAttribute('stroke-dasharray',`0 ${a.toFixed(2)} ${b.toFixed(2)} ${Math.max(0,100-a-b).toFixed(2)}`);
+ const g=c._gh;if(!g)return;
+ if(P<1.2){g.removeAttribute('stroke-dasharray');g.removeAttribute('stroke-dashoffset')}
+ else{const G=Math.min(.45,P*.2),D=P-G,sb=(((50-ph/T*100)%P)+P)%P,d=(((D+G/2-sb)%P)+P)%P;g.setAttribute('stroke-dasharray',`${D.toFixed(3)} ${G.toFixed(3)}`);g.setAttribute('stroke-dashoffset',d.toFixed(3))}}
+const setOn=(c,p)=>{p=Math.min(1,Math.max(0,p));c.setAttribute('stroke-dasharray',`${(p*100).toFixed(2)} ${((1-p)*100).toFixed(2)}`)};
+const setRing=(c,p)=>{p=Math.min(1,Math.max(0,p));c.setAttribute('stroke-dasharray',`0 ${(p*100).toFixed(2)} ${((1-p)*100).toFixed(2)} 0`)};
+
+function phaseIn(i,now){const p=R.P[i],q=R.P[R.i],it=R.items[p.ri];
+ if(q){const o=R.items[q.ri];o.el.classList.remove('on','pulse');
+  if(q.ri===p.ri)it.dir=it.dir==='on'?'off':'on';
+  else{o.el.style.display='none';o.st='hid';o.dir='off';if(q.kind==='lead'){o.dead=true;layout()}}}
+ R.i=i;R.mc=-1;it.el.style.display='';it.el.classList.add('on');it.st='act';
+ if(it.dir==='on')setOn(it.el,0);else setRing(it.el,0);
+ const n=R.P[i+1];if(n&&n.ri!==p.ri){const m=R.items[n.ri];if(m.st==='hid'&&!m.dead){m.st='ent';m.t0=now;m.el.style.display='';m.el.classList.remove('on');setOn(m.el,0)}}}
+function start(){stopTest();audio();nat('startService',{text:mode==='free'?'Time Master running':'Tabata running'});try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(x=>wl=x).catch(()=>{})}catch(e){}
+ const now=Date.now();
+ if(mode==='free'){const day=new Date().setHours(0,0,0,0);R={m:'free',t0:now,day,last:cfg.alarms.map(a=>cfg.freeSync?Math.floor((now-day)/(a.n*a.u*1000)):0)}}
+ else R={m:'tab',t0:now,P:buildPhases(),i:-1,mc:-1};
+ buildRings();$('#go').textContent='Stop';$('#go').classList.add('stop');$('.bar').classList.add('run');$('#pz').textContent='Pause';
+ document.body.classList.add('run-ui');setEd(false);timer=setInterval(tick,30);tick()}
+function stop(){clearInterval(timer);R=null;nat('stopService');try{wl&&wl.release()}catch(e){}wl=null;$('#go').textContent='Start';$('#go').classList.remove('stop');$('.bar').classList.remove('run');document.body.classList.remove('run-ui');setEd(true);idle()}
+$('#go').onclick=()=>R?stop():start();
+$('#pz').onclick=()=>{if(!R)return;const now=Date.now();
+ if(!R.paused){R.paused=now;$('#pz').textContent='Resume';$('#sub').textContent='Paused'}
+ else{R.t0+=now-R.paused;if(R.m==='free'&&cfg.freeSync)R.last=cfg.alarms.map(a=>Math.floor((now-R.day)/(a.n*a.u*1000)));R.paused=0;$('#pz').textContent='Pause'}
+ R.rings.forEach(c=>c.classList.remove('pulse'));if(R.paused){if(R.m==='free')R.rings.forEach(c=>c.classList.add('pulse'));else if(R.i>=0)R.items[R.P[R.i].ri].el.classList.add('pulse')}};
+function tick(){if(!R||R.paused)return;const now=Date.now();
+ if(R.m==='free'){setClock((now-R.t0)/1000,false);let nextIn=null;
+  cfg.alarms.forEach((a,i)=>{const iv=a.n*a.u*1000;if(!(iv>0))return;const pos=cfg.freeSync?now-R.day:now-R.t0,c=Math.floor(pos/iv);
+   if(R.last[i]===undefined)R.last[i]=c;
+   if(c>R.last[i]){R.last[i]=c;if(a.on)play(a.s,a.v,'a'+i)}
+   if(a.on){const r=(iv-pos%iv)/1000;if(nextIn===null||r<nextIn[0])nextIn=[r,i];if(R.rm[i])wheel(R.rm[i],pos,iv)}});
+  $('#sub').textContent=nextIn?`Next: ${cfg.alarms[nextIn[1]].l||'Alarm '+(nextIn[1]+1)} in ${fmt(nextIn[0])}`:'No alarms on'}
+ else{const t=(now-R.t0)/1000,i=R.P.findIndex(p=>t<p.e);
+  if(i<0){play('Gong',.9);stop();$('#sub').textContent='Done';return}
+  const p=R.P[i],st=p.e-p.d;
+  if(i!==R.i){phaseIn(i,now);if(p.s)play(p.s,p.v,p.k);
+   const col=`var(${p.c})`;$('#disp').style.borderColor=col;$('#disp').style.background=`color-mix(in srgb, ${col} 18%, var(--card))`}
+  setClock(p.e-t,true);$('#sub').textContent=p.name+(p.r?`  (round ${p.r} of ${cfg.tab.rounds})`:'');
+  R.items.forEach(x=>{if(x.st==='ent'){const g=(now-x.t0)/600;if(g>=1){x.st='full';setRing(x.el,0)}else setOn(x.el,g)}});
+  {const it=R.items[p.ri],g=(t-st)/p.d;it.dir==='on'?setOn(it.el,g):setRing(it.el,g)}
+  const m=cfg.tab.met;if(m.iv>0){const c=Math.floor((t-st)/m.iv);if(c>R.mc){R.mc=c;if(metOn(p)){playMet(m.type,m.v);flipIcons(p.kind==='lead'?'tab.leadM':p.kind==='pad'?'tab.padM':'tab.segs.'+p.si+'.m')}}}}}
+
+const clk=(t,iv)=>new Date(t).toLocaleTimeString([],Object.assign({hour:'numeric',minute:'2-digit'},iv%60000?{second:'2-digit'}:{}));
+function updNext(){const now=Date.now(),day=new Date().setHours(0,0,0,0);let best=null;
+ cfg.alarms.forEach((a,i)=>{const iv=a.n*a.u*1000,el=document.getElementById('nx'+i);if(!el)return;if(!(iv>0)){el.style.visibility='hidden';return}const nx=day+(Math.floor((now-day)/iv)+1)*iv;el.textContent='next '+clk(nx,iv);el.style.visibility=cfg.freeSync?'visible':'hidden';if(a.on&&(best===null||nx<best))best=nx});
+ const s=document.getElementById('syncNext');if(s){s.textContent=best?'next '+clk(best,1000):'';s.style.visibility=cfg.freeSync&&best?'visible':'hidden'}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&R){try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(x=>wl=x).catch(()=>{})}catch(e){}if(ctx&&ctx.state==='suspended')ctx.resume()}});
+const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+let _cp;function cp(){if(_cp!==undefined)return _cp;try{_cp=NATIVE?((Capacitor.Plugins&&Capacitor.Plugins.Chronicity)||(Capacitor.registerPlugin&&Capacitor.registerPlugin('Chronicity'))||null):null}catch(e){_cp=null}return _cp}
+function nat(m,a){try{const p=cp();return p&&p[m]?Promise.resolve(p[m](a||{})).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}}
+(function(){let st={};try{st=JSON.parse(localStorage.getItem('it-splash'))||{}}catch(e){}
+ const today=new Date().toDateString(),sp=$('#splash');
+ $('#spOk').onclick=()=>{sp.hidden=true;st.last=today;if($('#spNever').checked)st.never=1;try{localStorage.setItem('it-splash',JSON.stringify(st))}catch(e){}};
+ $('#spNative').hidden=!NATIVE;$('#spWeb').hidden=NATIVE;
+ $('#spBat').onclick=()=>nat('openBatterySettings');$('#spApp').onclick=()=>nat('openAppSettings');
+ if(!st.never&&st.last!==today){sp.hidden=false;if(NATIVE)nat('batteryStatus').then(r=>{if(r&&r.ignoring)$('#spNative').hidden=true})}})();
+{const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;let seen=0;try{seen=localStorage.getItem('it-ioshint')}catch(e){}if(ios&&!sa&&!seen){$('#ioshint').hidden=false;$('#iosok').onclick=()=>{$('#ioshint').hidden=true;try{localStorage.setItem('it-ioshint','1')}catch(e){}}}}
+if('serviceWorker' in navigator&&location.protocol==='https:'&&!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();idle();updNext();setInterval(updNext,500);
+</script>
+</body>
+</html>

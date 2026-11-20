@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chronicity playtest</title>
+<link rel="icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#f2f5f8;--card:#fff;--ink:#14202b;--mute:#5b6f80;--line:#d5dde5;--acc:#e08a00;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1923;--card:#18242f;--ink:#eef3f7;--mute:#8fa3b5;--line:#2a3a48;--acc:#ffb703;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px 40px}
+main{max-width:520px;margin:0 auto}
+img.logo{width:84px;height:84px;border-radius:20px;display:block;margin:8px 0 12px}
+h1{margin:0 0 4px;font-size:28px}h2{margin:0 0 8px;font-size:18px}p{margin:6px 0;color:var(--mute)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+ol,ul{margin:8px 0;padding-left:22px}li{margin:6px 0}
+a.btn{display:block;text-align:center;background:var(--acc);color:#111;font-weight:700;text-decoration:none;padding:14px;border-radius:12px;margin:10px 0}
+small{color:var(--mute)}
+</style></head>
+<body><main>
+<img class="logo" src="icons/icon-512.png" alt="">
+<h1>Chronicity playtest</h1>
+<p>Thanks for helping test! Pick your phone below.</p>
+
+<div class="card"><h2>Android</h2>
+<a class="btn" id="apk" href="#">Download the APK</a>
+<ol><li>Open the downloaded file. If asked, allow installs from this source.</li>
+<li>Open Chronicity. Allow notifications when asked (needed to keep timers running with the screen off).</li>
+<li>Follow the on-screen tip to set battery use to <b>Unrestricted</b>.</li></ol>
+<small id="apkNote">If the button doesn't work, ask me to send the APK file directly.</small></div>
+
+<div class="card"><h2>iPhone / iPad</h2>
+<a class="btn" href="./">Open Chronicity</a>
+<ol><li>Open this page in <b>Safari</b>.</li>
+<li>Tap the Share icon, then <b>Add to Home Screen</b>.</li>
+<li>Launch Chronicity from the new home-screen icon.</li></ol>
+<p>On iPhone, keep the screen on while timing. Sound and timing stop if the phone locks or you leave the app.</p></div>
+
+<div class="card"><h2>What to try</h2><ul>
+<li>Time Master: 3 alarms, then try <b>Sync to clock</b>. Rename an alarm.</li>
+<li>Tabata: lead-in, 2 to 3 segments, padding, several rounds.</li>
+<li>Metronome: open it, tick the per-item boxes, change them while running.</li>
+<li>Pause/Resume, tap the timer for hundredths, pull down the top tabs mid-run.</li>
+<li>Android: lock the screen for 10+ minutes mid-timer. Does it keep sounding?</li></ul></div>
+
+<div class="card"><h2>Send me feedback</h2>
+<p>Text me: your phone model and OS version, what you did, what you expected, what happened. A screenshot or screen recording helps a lot.</p></div>
+</main>
+<script>
+(function(){const m=location.hostname.match(/^(.+)\.github\.io$/),repo=location.pathname.split('/')[1];
+ if(m&&repo)document.getElementById('apk').href='https://github.com/'+m[1]+'/'+repo+'/releases/latest';
+ else document.getElementById('apk').style.display='none';})();
+</script></body></html>

@@ -93,7 +93,7 @@ h3{margin:0 0 4px;font-size:15px}
  <div class="disp" id="disp"><div class="clock"><span id="cm">00:00</span><span class="fr"><span id="ft">.00</span></span></div><div class="sub" id="sub">Ready</div></div>
  <div class="wrap" id="wrap">
   <div class="stage" id="stage"><svg id="rings" viewBox="0 0 300 300" width="300" height="300" preserveAspectRatio="xMidYMid meet"></svg></div>
-  <div class="edit" id="ed"><section id="p-free"></section><section id="p-tab" hidden></section></div>
+  <div class="edit" id="ed"><section id="p-free"></section><section id="p-tab" hidden></section><div style="text-align:center;margin:6px 0 14px"><button class="sm" id="helpBtn">Help &amp; background tips</button></div></div>
  </div>
 </main>
 <div class="bar"><div class="gw"><button class="pz" id="pz">Pause</button><button class="go" id="go">Start</button></div></div>
@@ -102,8 +102,9 @@ h3{margin:0 0 4px;font-size:15px}
  <p>This is a free alpha. Thanks for testing, and please tell me what feels off.</p>
  <div id="spNative"><h3>Keep timers running with the screen off</h3>
  <p>Allow notifications when asked. Then set Chronicity's battery use to <b>Unrestricted</b> (or turn off battery optimization). Some phones also have a sleeping-apps list to check (Samsung: Never sleeping apps).</p>
- <div class="row"><button class="sm" id="spBat">Battery settings</button><button class="sm" id="spApp">App info</button></div></div>
+ <div class="row"><button class="sm" id="spAllow">Allow background running</button><button class="sm" id="spBat">Battery settings</button><button class="sm" id="spApp">App info</button></div></div>
  <div id="spWeb"><h3>Before you start</h3><p>Keep this screen on while timing. Sound and timing pause if the phone locks or you leave the app.</p></div>
+ <p id="spStat" style="font-size:12px;word-break:break-word"></p>
  <label class="chk"><input type="checkbox" id="spNever">Don't show this again</label>
  <button class="go" id="spOk" style="margin-top:8px">Got it</button></div></div>
 <script>
@@ -124,6 +125,7 @@ const DEF={ver:2,freeSync:false,alarms:[{on:1,n:5,u:60,s:'Bip',v:.6},{on:1,n:15,
 let cfg;try{cfg=JSON.parse(localStorage.getItem('it-cfg'))}catch(e){}
 cfg=cfg||JSON.parse(JSON.stringify(DEF));
 const save=()=>{try{localStorage.setItem('it-cfg',JSON.stringify(cfg))}catch(e){}};
+cfg.limit=cfg.limit||{on:0,n:60,u:60,mode:'for',at:'22:00'};
 {const T=cfg.tab;T.met=T.met||{iv:1,type:'Tick',v:.5};
  if(T.met.on){T.leadM=T.padM=1;T.segs.forEach(g=>g.m=1);delete T.met.on}
  if(T.leadM===undefined)T.leadM=0;if(T.padM===undefined)T.padM=0;T.segs.forEach(g=>{if(g.m===undefined)g.m=0});
@@ -149,13 +151,18 @@ function flipIcons(key){metSide^=1;const set=[...document.querySelectorAll('#met
 function beat(){const m=cfg.tab.met;playMet(m.type,m.v);flipIcons(null);testT=setTimeout(beat,Math.max(100,m.iv*1000))}
 function stopTest(){clearTimeout(testT);testT=null;const b=$('#metTest');if(b){b.textContent='Test';b.classList.remove('on')}}
 function toggleTest(){if(testT){stopTest();return}audio();CNT.m=0;beat();const b=$('#metTest');if(b){b.textContent='Stop';b.classList.add('on')}}
+function limHtml(){const L=cfg.limit,at=cfg.freeSync&&L.mode==='at';
+ return `<div class="card"><div class="row"><label class="chk" style="margin:0"><input type="checkbox" ${L.on?'checked':''} data-p="limit.on" data-t="c">Limit</label>`+
+ (cfg.freeSync?`<select data-p="limit.mode" data-t="s" style="flex:none"><option value="for"${at?'':' selected'}>Stop after</option><option value="at"${at?' selected':''}>Stop at</option></select>`:'<span style="color:var(--mute);font-size:13px">stop after</span>')+
+ (at?`<input type="time" class="tin" style="flex:none;width:auto" value="${esc(L.at)}" data-p="limit.at" data-t="s">`:`<input type="number" min="1" step="any" value="${L.n}" data-p="limit.n" data-t="n"><select data-p="limit.u" data-t="n" style="flex:none"><option value="60"${L.u==60?' selected':''}>minutes</option><option value="3600"${L.u==3600?' selected':''}>hours</option></select>`)+`</div></div>`}
+function limText(){const L=cfg.limit;if(!L.on)return '';if(cfg.freeSync&&L.mode==='at'){const [h,m]=String(L.at||'22:00').split(':').map(Number);return ' · stops at '+new Date(2000,0,1,h||0,m||0).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}return ' · stops after '+L.n+(L.u==3600?' hr':' min')}
 function metHtml(){const m=cfg.tab.met;
  return `<div class="macc${metOpen?' open':''}"><button class="mbtn" id="metBtn">${ICON}<span>Metronome</span><span style="margin-left:auto">${metOpen?'▴':'▾'}</span></button>`+(metOpen?`<div class="mbody"><div class="row allrow">${ICON}<b>All</b><input type="checkbox" class="allc" data-all="1" ${allOn()?'checked':''} style="margin-left:auto;width:22px;height:22px;accent-color:var(--acc)"></div>
  <div class="row"><label>Every</label><input type="number" min="0.1" step="any" value="${m.iv}" data-p="tab.met.iv" data-t="n"><span class="nx">seconds</span></div>
  <div class="row"><label>Sound</label><select data-p="tab.met.type" data-t="s">${opts(m.type,MET)}</select><button class="sm${testT?' on':''}" id="metTest">${testT?'Stop':'Test'}</button></div>
  <div class="row"><label>Volume</label><input type="range" min="0" max="100" value="${m.v*100}" data-p="tab.met.v" data-t="r"></div></div>`:'')+`</div>`}
 function render(){
- $('#p-free').innerHTML=`<div style="display:flex;align-items:center;margin:8px 2px"><label class="chk" style="margin:0"><input type="checkbox" ${cfg.freeSync?'checked':''} data-p="freeSync" data-t="c">Sync to clock</label><span class="nx" id="syncNext" style="visibility:hidden"></span></div>`+cfg.alarms.map((a,i)=>`<div class="card"><div class="row"><input type="text" class="tin" placeholder="Alarm ${i+1}" value="${esc(a.l)}" data-p="alarms.${i}.l" data-t="s"><span class="nx" id="nx${i}"></span></div>
+ $('#p-free').innerHTML=`<div style="display:flex;align-items:center;margin:8px 2px"><label class="chk" style="margin:0"><input type="checkbox" ${cfg.freeSync?'checked':''} data-p="freeSync" data-t="c">Sync to clock</label><span class="nx" id="syncNext" style="visibility:hidden"></span></div>`+limHtml()+cfg.alarms.map((a,i)=>`<div class="card"><div class="row"><input type="text" class="tin" placeholder="Alarm ${i+1}" value="${esc(a.l)}" data-p="alarms.${i}.l" data-t="s"><span class="nx" id="nx${i}"></span></div>
  <div class="row"><label>Every</label><input type="number" min="1" step="any" value="${a.n}" data-p="alarms.${i}.n" data-t="n"><select data-p="alarms.${i}.u" data-t="n"><option value="1"${a.u==1?' selected':''}>seconds</option><option value="60"${a.u==60?' selected':''}>minutes</option><option value="3600"${a.u==3600?' selected':''}>hours</option></select></div>
  <div class="row"><label>Sound</label><select data-p="alarms.${i}.s" data-t="s">${opts(a.s)}</select><button class="sm" data-test="alarms.${i}">Test</button></div>
  <div class="row"><label>Volume</label><input type="range" min="0" max="100" value="${a.v*100}" data-p="alarms.${i}.v" data-t="r"></div>
@@ -173,7 +180,7 @@ document.addEventListener('input',e=>{const d=e.target.dataset;
  if(d.all!==undefined){const on=e.target.checked?1:0;cfg.tab.leadM=on;cfg.tab.padM=on;cfg.tab.segs.forEach(g=>g.m=on);save();refreshM();return}
  const p=d.p;if(!p)return;const t=d.t;let v=e.target.value;
  if(t==='n')v=parseFloat(v)||0;else if(t==='c')v=e.target.checked?1:0;else if(t==='r')v=v/100;
- setp(p,t==='c'&&p.indexOf('.')<0?!!v:v);save();if(d.mk)refreshM();if(!R)idle();updNext()});
+ setp(p,t==='c'&&p.indexOf('.')<0?!!v:v);save();if(d.mk)refreshM();if(p==='freeSync'||p==='limit.mode')render();if(!R)idle();updNext()});
 document.addEventListener('click',e=>{const d=e.target.dataset;
  if(e.target.closest('#metBtn')){metOpen=!metOpen;if(!metOpen)stopTest();render();return}
  if(e.target.closest('#metTest')){toggleTest();return}
@@ -184,7 +191,7 @@ document.addEventListener('click',e=>{const d=e.target.dataset;
  else if(e.target.id==='addS'){cfg.tab.segs.push({l:'Round',n:20,s:'Bip',v:.7,m:allOn()?1:0});save();render()}});
 function setMode(m){stopTest();if(R)stop();mode=m;$('#t-free').classList.toggle('on',m==='free');$('#t-tab').classList.toggle('on',m==='tab');$('#p-free').hidden=m!=='free';$('#p-tab').hidden=m!=='tab';idle()}
 $('#t-free').onclick=()=>setMode('free');$('#t-tab').onclick=()=>setMode('tab');
-function idle(){setClock(0,false);const r=cfg.tab.rounds;$('#sub').textContent=mode==='free'?'Ready':'Ready: '+r+(r==1?' round':' rounds');$('#disp').style.borderColor='var(--line)';$('#disp').style.background='var(--card)'}
+function idle(){setClock(0,false);const r=cfg.tab.rounds;$('#sub').textContent=mode==='free'?'Ready'+limText():'Ready: '+r+(r==1?' round':' rounds');$('#disp').style.borderColor='var(--line)';$('#disp').style.background='var(--card)'}
 
 const wrap=$('#wrap'),ed=$('#ed');
 function setEd(open){edOpen=open;wrap.style.height=wrap.offsetHeight+'px';ed.classList.toggle('shut',!open);const st=$('#stage'),h=open?Math.max(ed.offsetHeight,st.offsetHeight):st.offsetHeight;
@@ -231,6 +238,7 @@ function start(){stopTest();audio();nat('startService',{text:mode==='free'?'Time
  const now=Date.now();
  if(mode==='free'){const day=new Date().setHours(0,0,0,0);R={m:'free',t0:now,day,last:cfg.alarms.map(a=>cfg.freeSync?Math.floor((now-day)/(a.n*a.u*1000)):0)}}
  else R={m:'tab',t0:now,P:buildPhases(),i:-1,mc:-1};
+ if(R.m==='free'){const L=cfg.limit;if(L.on){if(cfg.freeSync&&L.mode==='at'){const [hh,mm]=String(L.at||'22:00').split(':').map(Number),d=new Date(now);d.setHours(hh||0,mm||0,0,0);if(d.getTime()<=now)d.setDate(d.getDate()+1);R.endAt=d.getTime()}else R.dur=L.n*L.u*1000}}
  buildRings();$('#go').textContent='Stop';$('#go').classList.add('stop');$('.bar').classList.add('run');$('#pz').textContent='Pause';
  document.body.classList.add('run-ui');setEd(false);timer=setInterval(tick,30);tick()}
 function stop(){clearInterval(timer);R=null;nat('stopService');try{wl&&wl.release()}catch(e){}wl=null;$('#go').textContent='Start';$('#go').classList.remove('stop');$('.bar').classList.remove('run');document.body.classList.remove('run-ui');setEd(true);idle()}
@@ -245,7 +253,9 @@ function tick(){if(!R||R.paused)return;const now=Date.now();
    if(R.last[i]===undefined)R.last[i]=c;
    if(c>R.last[i]){R.last[i]=c;if(a.on)play(a.s,a.v,'a'+i)}
    if(a.on){const r=(iv-pos%iv)/1000;if(nextIn===null||r<nextIn[0])nextIn=[r,i];if(R.rm[i])wheel(R.rm[i],pos,iv)}});
-  $('#sub').textContent=nextIn?`Next: ${cfg.alarms[nextIn[1]].l||'Alarm '+(nextIn[1]+1)} in ${fmt(nextIn[0])}`:'No alarms on'}
+  const end=R.endAt||(R.dur?R.t0+R.dur:0);
+  if(end&&now>=end){play('Gong',.9);stop();$('#sub').textContent='Limit reached';return}
+  $('#sub').textContent=(nextIn?`Next: ${cfg.alarms[nextIn[1]].l||'Alarm '+(nextIn[1]+1)} in ${fmt(nextIn[0])}`:'No alarms on')+(end?` · ends ${R.endAt?clk(end,60000):'in '+fmt((end-now)/1000)}`:'')}
  else{const t=(now-R.t0)/1000,i=R.P.findIndex(p=>t<p.e);
   if(i<0){play('Gong',.9);stop();$('#sub').textContent='Done';return}
   const p=R.P[i],st=p.e-p.d;
@@ -263,13 +273,16 @@ function updNext(){const now=Date.now(),day=new Date().setHours(0,0,0,0);let bes
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&R){try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(x=>wl=x).catch(()=>{})}catch(e){}if(ctx&&ctx.state==='suspended')ctx.resume()}});
 const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
 let _cp;function cp(){if(_cp!==undefined)return _cp;try{_cp=NATIVE?((Capacitor.Plugins&&Capacitor.Plugins.Chronicity)||(Capacitor.registerPlugin&&Capacitor.registerPlugin('Chronicity'))||null):null}catch(e){_cp=null}return _cp}
-function nat(m,a){try{const p=cp();return p&&p[m]?Promise.resolve(p[m](a||{})).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}}
+function nat(m,a){try{const H=window.ChronicityNative;if(H){a=a||{};if(m==='startService'){H.startService(a.text||'Timer running');return Promise.resolve({ok:1})}if(m==='stopService'){H.stopService();return Promise.resolve({ok:1})}if(m==='batteryStatus')return Promise.resolve({ignoring:!!H.batteryIgnoring(),via:'direct'});if(m==='requestUnrestricted'){H.requestUnrestricted();return Promise.resolve({ok:1})}if(m==='openBatterySettings'){H.openBatterySettings();return Promise.resolve({ok:1})}if(m==='openAppSettings'){H.openAppSettings();return Promise.resolve({ok:1})}}const p=cp(),er=e=>({error:String((e&&e.message)||e)});if(p&&p[m])return Promise.resolve(p[m](a||{})).catch(er);if(NATIVE&&window.Capacitor&&Capacitor.nativePromise)return Promise.resolve(Capacitor.nativePromise('Chronicity',m,a||{})).catch(er)}catch(e){}return Promise.resolve(null)}
 (function(){let st={};try{st=JSON.parse(localStorage.getItem('it-splash'))||{}}catch(e){}
  const today=new Date().toDateString(),sp=$('#splash');
  $('#spOk').onclick=()=>{sp.hidden=true;st.last=today;if($('#spNever').checked)st.never=1;try{localStorage.setItem('it-splash',JSON.stringify(st))}catch(e){}};
  $('#spNative').hidden=!NATIVE;$('#spWeb').hidden=NATIVE;
- $('#spBat').onclick=()=>nat('openBatterySettings');$('#spApp').onclick=()=>nat('openAppSettings');
- if(!st.never&&st.last!==today){sp.hidden=false;if(NATIVE)nat('batteryStatus').then(r=>{if(r&&r.ignoring)$('#spNative').hidden=true})}})();
+ const act=m=>nat(m).then(r=>{if(!r||r.error)$('#spStat').textContent='Could not open settings: '+((r&&r.error)||'no connection to Android (is this the latest build?)')});
+ $('#spAllow').onclick=()=>act('requestUnrestricted');$('#spBat').onclick=()=>act('openBatterySettings');$('#spApp').onclick=()=>act('openAppSettings');
+ window.openHelp=()=>{sp.hidden=false;if(NATIVE)nat('batteryStatus').then(r=>{const ok=r&&typeof r.ignoring==='boolean';$('#spStat').textContent=ok?('Background service: connected'+(r.via?' ('+r.via+')':'')+'. Battery optimization: '+(r.ignoring?'off (good)':'on')):'Background service: NOT connected (rebuild with the latest files?)'+(r&&r.error?' ('+r.error+')':'');$('#spNative').hidden=!!(ok&&r.ignoring)})};
+ $('#helpBtn').onclick=window.openHelp;
+ if(!st.never&&st.last!==today)window.openHelp()})();
 {const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;let seen=0;try{seen=localStorage.getItem('it-ioshint')}catch(e){}if(ios&&!sa&&!seen){$('#ioshint').hidden=false;$('#iosok').onclick=()=>{$('#ioshint').hidden=true;try{localStorage.setItem('it-ioshint','1')}catch(e){}}}}
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))navigator.serviceWorker.register('sw.js').catch(()=>{});
 render();idle();updNext();setInterval(updNext,500);

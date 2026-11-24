@@ -63,6 +63,18 @@ public class ChronicityPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void requestUnrestricted(PluginCall call) {
+        try {
+            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + getContext().getPackageName()));
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(i);
+            call.resolve();
+        } catch (Exception e) {
+            openBatterySettings(call);
+        }
+    }
+
+    @PluginMethod
     public void openBatterySettings(PluginCall call) {
         try {
             Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);

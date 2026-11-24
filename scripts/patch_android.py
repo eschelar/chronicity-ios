@@ -18,7 +18,8 @@ if 'FOREGROUND_SERVICE_MEDIA_PLAYBACK' not in m:
     perms = ('    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />\n'
              '    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />\n'
              '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n'
-             '    <uses-permission android:name="android.permission.WAKE_LOCK" />\n')
+             '    <uses-permission android:name="android.permission.WAKE_LOCK" />\n'
+             '    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />\n')
     m = m.replace('<application', perms + '    <application', 1)
     m = m.replace('</application>', '    <service android:name=".TimerService" android:exported="false" android:foregroundServiceType="mediaPlayback" />\n    </application>', 1)
     open(mp, 'w').write(m)

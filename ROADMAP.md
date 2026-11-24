@@ -9,6 +9,8 @@
 
 - Per-timer offset/delay (ms): needed to line up lanes and to compensate latency when adding a MIDI synth or Bluetooth audio.
 
+- Before Play release: REQUEST_IGNORE_BATTERY_OPTIMIZATIONS (the one-tap 'Allow background running' button) is restricted by Play policy; remove it or justify it, and rely on the foreground service.
+
 ## Premium ideas (separate app)
 - Custom synth chords played at specific intervals.
 - Groups of alarms in Time Master, with color coding and color effects in the visualizer.
